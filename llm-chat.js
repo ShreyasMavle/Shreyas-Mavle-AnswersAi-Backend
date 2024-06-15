@@ -8,7 +8,7 @@ const model = new ChatAnthropic({
 	temperature: 0,
 });
 
-const resp = await model.invoke([
-	new HumanMessage({ content: "Hi! I'm Bob!" }),
-]);
-console.log(resp.content);
+export default async function call_chat_model(question) {
+	const resp = await model.invoke([new HumanMessage({ content: question })]);
+	return resp.content;
+}
