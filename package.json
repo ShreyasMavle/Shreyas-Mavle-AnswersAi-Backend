@@ -1,0 +1,14 @@
+{
+  "name": "shreyas-mavle-answersai-backend",
+  "version": "1.0.0",
+  "description": "AI chat app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Shreyas Mavle",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
