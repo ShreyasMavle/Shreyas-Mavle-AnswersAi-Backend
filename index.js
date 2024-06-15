@@ -3,7 +3,15 @@ const app = express();
 const port = 3000;
 import call_chat_model from './llm-chat.js';
 
+// parse requests of content-type - application/json
 app.use(express.json());
+
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(
+	express.urlencoded({
+		extended: true,
+	})
+);
 
 app.get('/', (req, res) => {
 	res.send('Hello World!');
