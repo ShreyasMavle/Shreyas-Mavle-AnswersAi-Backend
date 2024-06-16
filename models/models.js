@@ -14,7 +14,7 @@ sequelize
 		console.error('Unable to connect to the database: ', error);
 	});
 
-const users = sequelize.define('users', {
+const Users = sequelize.define('users', {
 	id: {
 		primaryKey: true,
 		allowNull: false,
@@ -54,7 +54,7 @@ const users = sequelize.define('users', {
 	},
 });
 
-const questions = sequelize.define('questions', {
+const Questions = sequelize.define('questions', {
 	id: {
 		primaryKey: true,
 		allowNull: false,
@@ -71,10 +71,10 @@ const questions = sequelize.define('questions', {
 	},
 });
 
-users.hasMany(questions, {
+Users.hasMany(Questions, {
 	onDelete: 'CASCADE',
 });
-questions.belongsTo(users, {
+Questions.belongsTo(Users, {
 	foreignKey: 'id',
 });
 
@@ -88,4 +88,4 @@ questions.belongsTo(users, {
 // 		console.error('Unable to create tables : ', error);
 // 	});
 
-module.exports = { users, questions };
+module.exports = { Users, questions: Questions };
