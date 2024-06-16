@@ -1,19 +1,23 @@
-const { DataTypes } = require('sequelize');
-const db = require('./index.js');
+const { DataTypes, Sequelize } = require('sequelize');
 
-// sequelize
-// 	.authenticate()
-// 	.then(() => {
-// 		console.log('Connection has been established successfully.');
-// 	})
-// 	.catch((error) => {
-// 		console.error('Unable to connect to the database: ', error);
-// 	});
+const sequelize = new Sequelize('answersai', 'root', 'admin@123', {
+	host: 'localhost',
+	dialect: 'mysql',
+});
+
+sequelize
+	.authenticate()
+	.then(() => {
+		console.log('Connection has been established successfully.');
+	})
+	.catch((error) => {
+		console.error('Unable to connect to the database: ', error);
+	});
 
 // We export a function that defines the model.
 // This function will automatically receive as parameter the Sequelize connection object.
 
-const users = db.sequelize.define('users', {
+const users = sequelize.define('users', {
 	id: {
 		primaryKey: true,
 		allowNull: false,
@@ -75,13 +79,13 @@ questions.belongsTo(users, {
 	foreignKey: 'id',
 });
 
-// sequelize
-// 	.sync()
-// 	.then(() => {
-// 		console.log('Tables created successfully!');
-// 	})
-// 	.catch((error) => {
-// 		console.error('Unable to create tables : ', error);
-// 	});
+sequelize
+	.sync()
+	.then(() => {
+		console.log('Tables created successfully!');
+	})
+	.catch((error) => {
+		console.error('Unable to create tables : ', error);
+	});
 
 module.exports = { users, questions };
