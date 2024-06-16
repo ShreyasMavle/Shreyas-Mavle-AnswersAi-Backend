@@ -5,14 +5,14 @@ config();
 
 const saltRounds = 10; // Typically a value between 10 and 12
 
-function hash_password(userPassword) {
-	const salt = bcrypt.genSaltSync(saltRounds);
-	const hash = bcrypt.hashSync(userPassword, salt);
+async function hashPassword(userPassword) {
+	const salt = await bcrypt.genSaltSync(saltRounds);
+	const hash = await bcrypt.hash(userPassword, salt);
 	return hash;
 }
 
-function compare_hash(userInputPassword, storedHashedPassword) {
-	result = bcrypt.compareSync(userInputPassword, storedHashedPassword);
+async function comparePassword(userInputPassword, storedHashedPassword) {
+	result = await bcrypt.compare(userInputPassword, storedHashedPassword);
 	if (result) {
 		// Passwords match, authentication successful
 		console.log('Passwords match! User authenticated.');
@@ -35,4 +35,4 @@ function generateAccessToken(user) {
 	);
 }
 
-module.exports = { hash_password, compare_hash, generateAccessToken };
+module.exports = { hashPassword, comparePassword, generateAccessToken };

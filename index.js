@@ -1,9 +1,12 @@
 const express = require('express');
 const call_chat_model = require('./llm-chat.js');
 const { Users, Questions } = require('./models/models.js');
+const { config } = require('dotenv');
+var jwt = require('jsonwebtoken');
+config();
 const {
-	hash_password,
-	compare_hash,
+	hashPassword,
+	comparePassword,
 	generateAccessToken,
 } = require('./helper.js');
 
@@ -20,11 +23,26 @@ app.use(
 	})
 );
 
+// Middleware to verify the JWT token
+function verifyToken(req, res, next) {
+	const authHeader = req.header('Authorization');
+	if (!authHeader) return res.status(401).send('Token is missing');
+
+	const token = authHeader.split(' ')[1];
+	if (!token) return res.status(401).send('Token is missing');
+
+	jwt.verify(token, process.env.TOKEN_SECRET, (err, { userId, email }) => {
+		if (err) return res.status(403).send('Token is invalid');
+		req.userId = userId;
+		next();
+	});
+}
+
 app.get('/', (req, res) => {
 	res.send('Hello World!');
 });
 
-app.post('/api/questions', async (req, res) => {
+app.post('/api/questions', verifyToken, async (req, res) => {
 	const { question } = req.body;
 	console.log(question);
 	const ai_answer = await call_chat_model(question);
@@ -32,7 +50,7 @@ app.post('/api/questions', async (req, res) => {
 	res.send({ message: ai_answer });
 });
 
-app.get('/api/questions/:questionId', async (req, res) => {
+app.get('/api/questions/:questionId', verifyToken, async (req, res) => {
 	const { questionId } = req.params;
 	console.log(questionId);
 	res.send('Retrieve specific question and answer by question ID');
@@ -40,7 +58,7 @@ app.get('/api/questions/:questionId', async (req, res) => {
 
 app.post('/api/users', async (req, res) => {
 	const { email, password } = req.body;
-	hash = hash_password(password);
+	hash = hashPassword(password);
 	const user = await Users.create({ email: email, password: hash });
 	token = generateAccessToken(user);
 	console.log('user id', user.id);
@@ -50,7 +68,7 @@ app.post('/api/users', async (req, res) => {
 	});
 });
 
-app.get('/api/users/:userId', async (req, res) => {
+app.get('/api/users/:userId', verifyToken, async (req, res) => {
 	const { userId } = req.params;
 	const user = await Users.findByPk(userId);
 	console.log(userId);
@@ -59,7 +77,7 @@ app.get('/api/users/:userId', async (req, res) => {
 	});
 });
 
-app.get('/api/users/:userId/questions', async (req, res) => {
+app.get('/api/users/:userId/questions', verifyToken, async (req, res) => {
 	const { userId } = req.params;
 
 	console.log(userId);
@@ -69,7 +87,7 @@ app.get('/api/users/:userId/questions', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
 	const { email, password } = req.body;
 	user = await Users.findOne({ email: email });
-	if (!user || user.password != password) {
+	if (!user || !comparePassword(password, user.password)) {
 		return res.send({ error: 'Wrong details please check at once' });
 	}
 	token = generateAccessToken(user);
