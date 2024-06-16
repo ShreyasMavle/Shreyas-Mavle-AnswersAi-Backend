@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "root",
-    "password": "admin123",
+    "password": "admin@123",
     "database": "answersai",
     "host": "localhost",
     "dialect": "mysql"

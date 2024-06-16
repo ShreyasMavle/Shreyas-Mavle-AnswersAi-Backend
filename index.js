@@ -1,7 +1,10 @@
-import express from 'express';
+const express = require('express');
+const call_chat_model = require('./llm-chat.js');
+const db = require('./models/index.js');
+const { users, questions } = require('./models/models.js');
+
 const app = express();
 const port = 3000;
-import call_chat_model from './llm-chat.js';
 
 // parse requests of content-type - application/json
 app.use(express.json());
@@ -45,6 +48,15 @@ app.get('/api/users/:userId/questions', async (req, res) => {
 	console.log(userId);
 	res.send('Retrieve all questions asked by user with a given userId');
 });
+
+db.sequelize
+	.sync()
+	.then(() => {
+		console.log('Tables created successfully!');
+	})
+	.catch((error) => {
+		console.error('Unable to create tables : ', error);
+	});
 
 app.listen(port, () => {
 	console.log(`App listening on port ${port}`);
