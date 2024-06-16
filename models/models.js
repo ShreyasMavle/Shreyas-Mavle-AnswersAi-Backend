@@ -8,14 +8,11 @@ const sequelize = new Sequelize('answersai', 'root', 'admin@123', {
 sequelize
 	.authenticate()
 	.then(() => {
-		console.log('Connection has been established successfully.');
+		console.log('Database connection has been established successfully.');
 	})
 	.catch((error) => {
 		console.error('Unable to connect to the database: ', error);
 	});
-
-// We export a function that defines the model.
-// This function will automatically receive as parameter the Sequelize connection object.
 
 const users = sequelize.define('users', {
 	id: {
@@ -74,18 +71,21 @@ const questions = sequelize.define('questions', {
 	},
 });
 
-users.hasMany(questions);
+users.hasMany(questions, {
+	onDelete: 'CASCADE',
+});
 questions.belongsTo(users, {
 	foreignKey: 'id',
 });
 
-sequelize
-	.sync()
-	.then(() => {
-		console.log('Tables created successfully!');
-	})
-	.catch((error) => {
-		console.error('Unable to create tables : ', error);
-	});
+// .sync({ force: true }) to delete if exists
+// sequelize
+// 	.sync()
+// 	.then(() => {
+// 		console.log('Tables created successfully!');
+// 	})
+// 	.catch((error) => {
+// 		console.error('Unable to create tables : ', error);
+// 	});
 
 module.exports = { users, questions };
