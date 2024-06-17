@@ -71,11 +71,9 @@ const Questions = sequelize.define('questions', {
 	},
 });
 
-Users.hasMany(Questions, {
-	onDelete: 'CASCADE',
-});
+Users.hasMany(Questions);
 Questions.belongsTo(Users, {
-	foreignKey: 'id',
+	foreignKey: 'userId',
 });
 
 // .sync({ force: true }) to delete if exists

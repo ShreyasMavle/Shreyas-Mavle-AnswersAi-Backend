@@ -16,25 +16,23 @@ const port = 3000;
 // parse requests of content-type - application/json
 app.use(express.json());
 
-// parse requests of content-type - application/x-www-form-urlencoded
-app.use(
-	express.urlencoded({
-		extended: true,
-	})
-);
-
 // Middleware to verify the JWT token
 function verifyToken(req, res, next) {
 	const authHeader = req.header('Authorization');
-	if (!authHeader) return res.status(401).send('Token is missing');
+	if (!authHeader) return res.status(401).send({ error: 'Token is missing' });
 
 	const token = authHeader.split(' ')[1];
-	if (!token) return res.status(401).send('Token is missing');
+	if (!token) return res.status(401).send({ error: 'Token is missing' });
 
-	jwt.verify(token, process.env.TOKEN_SECRET, (err, { userId, email }) => {
-		if (err) return res.status(403).send('Token is invalid');
-		req.userId = userId;
-		next();
+	jwt.verify(token, process.env.TOKEN_SECRET, (err, userObj) => {
+		if (err) return res.status(403).send({ error: 'Token is invalid' });
+		try {
+			const { userId, email } = userObj;
+			req.userId = userId;
+			next();
+		} catch (error) {
+			return res.status(403).send({ error: 'Token is invalid' });
+		}
 	});
 }
 
@@ -75,7 +73,13 @@ app.get('/api/questions/:questionId', verifyToken, async (req, res) => {
 
 app.post('/api/users', async (req, res) => {
 	const { email, password } = req.body;
-	hash = hashPassword(password);
+	existingUser = await Users.findOne({ where: { email: email } });
+	if (existingUser) {
+		return res
+			.status(403)
+			.send({ error: 'User with email ' + email + ' already exists' });
+	}
+	hash = await hashPassword(password);
 	const user = await Users.create({ email: email, password: hash });
 	token = generateAccessToken(user);
 	console.log('user id', user.id);
@@ -109,10 +113,13 @@ app.get('/api/users/:userId/questions', verifyToken, async (req, res) => {
 
 app.post('/api/auth/login', async (req, res) => {
 	const { email, password } = req.body;
-	user = await Users.findOne({ email: email });
+	user = await Users.findOne({ where: { email: email } });
+	console.log(user);
 	if (!user) {
 		return res.status(403).send({ error: 'No user found with email ' + email });
-	} else if (!comparePassword(password, user.password)) {
+	}
+	const pwdCheck = await comparePassword(password, user.password);
+	if (!pwdCheck) {
 		return res.status(403).send({ error: 'Password does not match' });
 	}
 	token = generateAccessToken(user);
