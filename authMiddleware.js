@@ -3,7 +3,7 @@ config();
 var jwt = require('jsonwebtoken');
 
 // Middleware to verify the JWT token
-module.exports = function verifyToken(req, res, next) {
+function verifyToken(req, res, next) {
 	const authHeader = req.header('Authorization');
 	if (!authHeader) return res.status(401).send({ error: 'Token is missing' });
 
@@ -20,4 +20,20 @@ module.exports = function verifyToken(req, res, next) {
 			return res.status(403).send({ error: 'Token is invalid' });
 		}
 	});
-};
+}
+
+// errorHandler.js
+function errorHandler(err, req, res, next) {
+	// console.error(err.stack); // Log the error stack trace
+
+	const status = err.status || 500; // Default to 500 if no status code is provided
+	const message = err.message || 'Internal Server Error';
+
+	res.status(status).send({
+		error: {
+			message: message,
+		},
+	});
+}
+
+module.exports = { verifyToken, errorHandler };

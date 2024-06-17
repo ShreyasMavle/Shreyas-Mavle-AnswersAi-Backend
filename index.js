@@ -2,7 +2,7 @@ const express = require('express');
 const call_chat_model = require('./llm-chat.js');
 const { Users, Questions } = require('./models/models.js');
 const { config } = require('dotenv');
-const verifyToken = require('./authMiddleware.js');
+const { verifyToken, errorHandler } = require('./authMiddleware.js');
 
 const {
 	hashPassword,
@@ -36,12 +36,14 @@ app.post('/api/questions', verifyToken, async (req, res) => {
 
 	userId = req.userId;
 	const ai_answer = await call_chat_model(question);
-	const q = await Questions.create({
+	res.send({ message: ai_answer });
+	console.log('send response');
+	// Save to db after sending data
+	Questions.create({
 		question: question,
 		answer: ai_answer,
 		userId: userId,
 	});
-	res.send({ message: ai_answer });
 });
 
 app.get('/api/questions/:questionId', verifyToken, async (req, res) => {
@@ -69,10 +71,8 @@ app.post('/api/users', async (req, res) => {
 	}
 	hash = await hashPassword(password);
 	const user = await Users.create({ email: email, password: hash });
-	token = generateAccessToken(user);
 	res.send({
 		message: 'Created new user ' + email + ' with id ' + user.id,
-		token,
 	});
 });
 
@@ -80,7 +80,7 @@ app.get('/api/users/:userId', verifyToken, async (req, res) => {
 	const { userId } = req.params;
 	const user = await Users.findByPk(userId);
 	if (!user) {
-		return res.status(404).send({ message: 'No User found with id ' + userId });
+		return res.status(404).send({ message: 'No user found with id ' + userId });
 	}
 	res.send({
 		id: user.id,
@@ -109,10 +109,12 @@ app.post('/api/auth/login', async (req, res) => {
 	}
 	token = generateAccessToken(user);
 	res.send({
-		message: 'logged in user ' + email + ' with id ' + user.id,
+		message: 'Logged in user ' + email + ' with id ' + user.id,
 		token,
 	});
 });
+
+app.use(errorHandler);
 
 app.listen(port, () => {
 	console.log(`App listening on port ${port}`);
