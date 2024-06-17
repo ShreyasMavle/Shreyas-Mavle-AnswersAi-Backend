@@ -62,11 +62,11 @@ const Questions = sequelize.define('questions', {
 		type: DataTypes.INTEGER,
 	},
 	question: {
-		type: DataTypes.STRING,
+		type: DataTypes.TEXT('long'),
 		allowNull: false,
 	},
 	answer: {
-		type: DataTypes.STRING,
+		type: DataTypes.TEXT('long'),
 		allowNull: false,
 	},
 });
@@ -80,7 +80,7 @@ Questions.belongsTo(Users, {
 
 // .sync({ force: true }) to delete if exists
 // sequelize
-// 	.sync()
+// 	.sync({ force: true })
 // 	.then(() => {
 // 		console.log('Tables created successfully!');
 // 	})

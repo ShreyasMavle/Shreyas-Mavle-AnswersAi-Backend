@@ -44,9 +44,10 @@ app.get('/', (req, res) => {
 
 app.post('/api/questions', verifyToken, async (req, res) => {
 	const { question } = req.body;
-	console.log(question);
+
 	userId = req.userId;
 	const ai_answer = await call_chat_model(question);
+	console.log(userId);
 	const q = await Questions.create({
 		question: question,
 		answer: ai_answer,
@@ -63,6 +64,9 @@ app.get('/api/questions/:questionId', verifyToken, async (req, res) => {
 	const question = await Questions.findOne({
 		where: { id: questionId, userId: userId },
 	});
+	if (!question) {
+		return res.status(404).send({ message: 'No Questions found' });
+	}
 	res.send({
 		question: question.question,
 		answer: question.answer,
@@ -84,24 +88,32 @@ app.post('/api/users', async (req, res) => {
 app.get('/api/users/:userId', verifyToken, async (req, res) => {
 	const { userId } = req.params;
 	const user = await Users.findByPk(userId);
+	if (!user) {
+		return res.status(404).send({ message: 'No User found with id ' + userId });
+	}
 	console.log(userId);
 	res.send({
-		message: 'User with id ' + user.id + ' found',
+		id: user.id,
+		email: user.email,
 	});
 });
 
 app.get('/api/users/:userId/questions', verifyToken, async (req, res) => {
 	const { userId } = req.params;
-
-	console.log(userId);
-	res.send('Retrieve all questions asked by user with a given userId');
+	const questions = await Questions.findAll({
+		where: { userId: userId },
+		raw: true,
+	});
+	res.send(questions);
 });
 
 app.post('/api/auth/login', async (req, res) => {
 	const { email, password } = req.body;
 	user = await Users.findOne({ email: email });
-	if (!user || !comparePassword(password, user.password)) {
-		return res.send({ error: 'Wrong details please check at once' });
+	if (!user) {
+		return res.status(403).send({ error: 'No user found with email ' + email });
+	} else if (!comparePassword(password, user.password)) {
+		return res.status(403).send({ error: 'Password does not match' });
 	}
 	token = generateAccessToken(user);
 	console.log('user id', user.id);
