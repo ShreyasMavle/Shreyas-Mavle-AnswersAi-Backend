@@ -45,15 +45,28 @@ app.get('/', (req, res) => {
 app.post('/api/questions', verifyToken, async (req, res) => {
 	const { question } = req.body;
 	console.log(question);
+	userId = req.userId;
 	const ai_answer = await call_chat_model(question);
-	// const q = Questions.create({ question: question, answer: answer });
+	const q = await Questions.create({
+		question: question,
+		answer: ai_answer,
+		userId: userId,
+	});
+	console.log('Created question with id ' + q.id);
 	res.send({ message: ai_answer });
 });
 
 app.get('/api/questions/:questionId', verifyToken, async (req, res) => {
 	const { questionId } = req.params;
 	console.log(questionId);
-	res.send('Retrieve specific question and answer by question ID');
+	userId = req.userId;
+	const question = await Questions.findOne({
+		where: { id: questionId, userId: userId },
+	});
+	res.send({
+		question: question.question,
+		answer: question.answer,
+	});
 });
 
 app.post('/api/users', async (req, res) => {

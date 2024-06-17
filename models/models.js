@@ -88,4 +88,4 @@ Questions.belongsTo(Users, {
 // 		console.error('Unable to create tables : ', error);
 // 	});
 
-module.exports = { Users, questions: Questions };
+module.exports = { Users, Questions };

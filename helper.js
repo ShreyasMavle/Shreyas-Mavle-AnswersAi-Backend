@@ -31,7 +31,7 @@ function generateAccessToken(user) {
 			email: user.email,
 		},
 		process.env.TOKEN_SECRET,
-		{ expiresIn: '1800s' }
+		{ expiresIn: '1h' }
 	);
 }
 
