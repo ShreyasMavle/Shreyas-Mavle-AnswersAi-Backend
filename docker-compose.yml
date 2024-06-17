@@ -1,7 +1,6 @@
-version: '3.8'
-
 services:
   app:
+    container_name: answersai-app
     build: .
     ports:
       - "3000:3000"
@@ -9,9 +8,9 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - TOKEN_SECRET=${TOKEN_SECRET}
       - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
+      - DB_USER=admin
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=db 
+      - DB_HOST=db
     depends_on:
       - db
     volumes:
@@ -20,12 +19,13 @@ services:
 
   db:
     image: mysql:5.7
+    container_name: answersai-db
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
       - MYSQL_DATABASE=${DB_NAME}
-      - MYSQL_USER=${DB_USER}
+      - MYSQL_USER=admin
       - MYSQL_PASSWORD=${DB_PASSWORD}
     volumes:
       - mysql-data:/var/lib/mysql
