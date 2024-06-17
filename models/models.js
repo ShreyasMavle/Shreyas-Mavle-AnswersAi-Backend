@@ -1,7 +1,14 @@
 const { DataTypes, Sequelize } = require('sequelize');
+const { config } = require('dotenv');
+config();
 
-const sequelize = new Sequelize('answersai', 'root', 'admin@123', {
-	host: 'localhost',
+const DB_NAME = process.env.DB_NAME;
+const DB_USER = process.env.DB_USER;
+const DB_PASSWORD = process.env.DB_PASSWORD;
+const DB_HOST = process.env.DB_HOST;
+
+const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
+	host: DB_HOST,
 	dialect: 'mysql',
 });
 
@@ -77,13 +84,13 @@ Questions.belongsTo(Users, {
 });
 
 // .sync({ force: true }) to delete if exists
-// sequelize
-// 	.sync({ force: true })
-// 	.then(() => {
-// 		console.log('Tables created successfully!');
-// 	})
-// 	.catch((error) => {
-// 		console.error('Unable to create tables : ', error);
-// 	});
+sequelize
+	.sync()
+	.then(() => {
+		console.log('Tables are created successfully!');
+	})
+	.catch((error) => {
+		console.error('Unable to create tables : ', error);
+	});
 
 module.exports = { Users, Questions };
