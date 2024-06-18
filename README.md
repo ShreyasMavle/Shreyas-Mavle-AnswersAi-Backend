@@ -29,7 +29,7 @@ Head over to http://localhost:3000/. Mysql port is default 3306.
 ### API documentation
 
 | HTTP Method | Endpoints                      | Action                                                   |
-|-------------|--------------------------------|----------------------------------------------------------|
+| ----------- | ------------------------------ | -------------------------------------------------------- |
 | GET         | `/`                            | List all the routes available                            |
 | GET         | `/api/questions`               | Accept user question, and return AI-generated answer     |
 | POST        | `/api/questions/:questionId`   | Retrieve specific question and answer by question ID     |
@@ -41,12 +41,11 @@ Head over to http://localhost:3000/. Mysql port is default 3306.
 ### Response (Content-Type: application/json)
 
 | Status Code | Description             |
-|:------------|:------------------------|
+| :---------- | :---------------------- |
 | 200         | `OK`                    |
 | 400         | `BAD REQUEST`           |
 | 401         | `UNAUTHORIZED`          |
 | 403         | `FORBIDDEN`             |
 | 404         | `NOT FOUND`             |
+| 409         | `CONFLICT`              |
 | 500         | `INTERNAL SERVER ERROR` |
-
-

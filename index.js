@@ -3,6 +3,7 @@ const call_chat_model = require('./llm-chat.js');
 const { Users, Questions } = require('./models/models.js');
 const { config } = require('dotenv');
 const { verifyToken, errorHandler } = require('./middleware.js');
+const validator = require('validator');
 
 const {
 	hashPassword,
@@ -35,6 +36,12 @@ app.post('/api/questions', verifyToken, async (req, res) => {
 	const { question } = req.body;
 
 	userId = req.userId;
+	// check if user exists
+	const user = await Users.findByPk(userId);
+	if (!user) {
+		return res.status(404).send({ message: 'No user found with id ' + userId });
+	}
+
 	const ai_answer = await call_chat_model(question);
 	res.send({ message: ai_answer });
 	// Save to db after sending data
@@ -62,10 +69,14 @@ app.get('/api/questions/:questionId', verifyToken, async (req, res) => {
 
 app.post('/api/users', async (req, res) => {
 	const { email, password } = req.body;
+	if (!validator.isEmail(email)) {
+		return res.status(400).send({ error: 'Invalid email' });
+	}
+
 	existingUser = await Users.findOne({ where: { email: email } });
 	if (existingUser) {
 		return res
-			.status(403)
+			.status(409)
 			.send({ error: 'User with email ' + email + ' already exists' });
 	}
 	hash = await hashPassword(password);
