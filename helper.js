@@ -15,11 +15,9 @@ async function comparePassword(userInputPassword, storedHashedPassword) {
 	result = await bcrypt.compare(userInputPassword, storedHashedPassword);
 	if (result) {
 		// Passwords match, authentication successful
-		console.log('Passwords match! User authenticated.');
 		return true;
 	} else {
 		// Passwords don't match, authentication failed
-		console.log('Passwords do not match! Authentication failed.');
 		return false;
 	}
 }

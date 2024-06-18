@@ -22,7 +22,6 @@ function verifyToken(req, res, next) {
 	});
 }
 
-// errorHandler.js
 function errorHandler(err, req, res, next) {
 	// console.error(err.stack); // Log the error stack trace
 

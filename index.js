@@ -2,7 +2,7 @@ const express = require('express');
 const call_chat_model = require('./llm-chat.js');
 const { Users, Questions } = require('./models/models.js');
 const { config } = require('dotenv');
-const { verifyToken, errorHandler } = require('./authMiddleware.js');
+const { verifyToken, errorHandler } = require('./middleware.js');
 
 const {
 	hashPassword,
@@ -37,7 +37,6 @@ app.post('/api/questions', verifyToken, async (req, res) => {
 	userId = req.userId;
 	const ai_answer = await call_chat_model(question);
 	res.send({ message: ai_answer });
-	console.log('send response');
 	// Save to db after sending data
 	Questions.create({
 		question: question,
